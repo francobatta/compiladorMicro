@@ -7,3 +7,4 @@ Compilador de lenguaje Micro para la clase de SSL 2017
 ## Si se encuentra un error:
 * Abrir un issue si el error es complicado
 * Si sigue andando el ejecutable una vez cambiados los archivos, committear cambios 
+* Hacer un *Release* si los cambios son significativos (o sea, subir el .exe)
