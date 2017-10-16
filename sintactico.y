@@ -7,6 +7,7 @@ extern char *yytext;
 extern FILE *yyin;
 void yyerror(char *s);
 %}
+%error-verbose
 %start Programa
 %token INICIO
 %token FIN
@@ -36,7 +37,7 @@ Expresion: Primaria
 Primaria: IDENTIFICADOR
 	| CONSTANTE
 	| PI Expresion PD
- 
+
 %%
 void yyerror(char *s)
 {
@@ -44,15 +45,17 @@ printf("Error %s",s);
 }
 int main(int argc,char **argv)
 {
-if (argc>1 || argc<0)
-{printf("Error, cantidad incorrecta de parametros");getchar();return 1;}
-else if (argc==1)
- yyin=fopen(argv[1],"rt");
-else
- yyin=stdin;
-yyparse();
-if (argc==0)
+if (argc>3 || argc<1)
+{printf("Error, cantidad incorrecta de parametros");
 getchar();
+return 1;}
+else if (argc==2)
+ {yyin=fopen(argv[1],"rt");
+ printf("Archivo %s abierto\n",argv[1]);}
+else
+ {printf("Por favor ingrese programa a ser compilado\n");
+ yyin=stdin;}
+yyparse();
 getchar();
 return 0;
 }
