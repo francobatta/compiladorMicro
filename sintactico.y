@@ -19,8 +19,12 @@ Lista* inicializacion();
 Nodo* crearNodo(char *a);
 void insertarIdentificador(Lista *lista,char *a);
 void yyerrors(int tipo,char *s);
+void inicializarArchivo(FILE *f);
 int estaEnLista(Lista *lista,char *a);
+void agregarIdentificadorArchivo(FILE *f,char *s,char *a);
+void agregarLeerArchivo(FILE *f,char *a);
 Lista *lista;
+FILE *f;
 %}
 %union {
   char * cadena;
@@ -35,28 +39,28 @@ Lista *lista;
 %token ESCRIBIR
 %token ASIGNACION
 %token PUNTOCOMA
-%token CONSTANTE
+%token <cadena>CONSTANTE
 %token COMA
-%token PI
-%token PD
-%token OP_ADITIVO
+%token <cadena>PI
+%token <cadena>PD
+%token <cadena>OP_ADITIVO
 %%
 Programa: INICIO ListaDeSentencias FIN {YYACCEPT;}
 ListaDeSentencias: Sentencia
 		|ListaDeSentencias Sentencia
 Sentencia: IDENTIFICADOR ASIGNACION Expresion PUNTOCOMA {if(estaEnLista(lista,$1)==0){yyerrors(1,$1);YYABORT;}
-														else{insertarIdentificador(lista,$1);}}
+														else{insertarIdentificador(lista,$1);agregarIdentificadorArchivo(f,$1,$<cadena>3);}}
 	|LEER PI ListaIdentificadores PD PUNTOCOMA 
 	|ESCRIBIR PI ListaExpresiones PD PUNTOCOMA
-ListaIdentificadores: IDENTIFICADOR {if(estaEnLista(lista,$1)==1){yyerrors(0,$1);YYABORT;}}
-	| ListaIdentificadores COMA IDENTIFICADOR {if(estaEnLista(lista,$3)==1){yyerrors(0,$3);YYABORT;}}
+ListaIdentificadores: IDENTIFICADOR {if(estaEnLista(lista,$1)==1){yyerrors(0,$1);YYABORT;}else{agregarLeerArchivo(f,$1);}}
+	| ListaIdentificadores COMA IDENTIFICADOR {if(estaEnLista(lista,$3)==1){yyerrors(0,$3);YYABORT;}else{agregarLeerArchivo(f,$3);}}
 ListaExpresiones: Expresion
 	|ListaExpresiones COMA Expresion
 Expresion: Primaria
-	|Expresion OP_ADITIVO Expresion
+	|Expresion OP_ADITIVO Expresion 
 Primaria: IDENTIFICADOR {if(estaEnLista(lista,$1)==1){yyerrors(0,$1);YYABORT;}}
 	| CONSTANTE
-	| PI Expresion PD
+	| PI Expresion PD {strcat($<cadena>$,strcat(strcat($1,$<cadena>2),$3))}
 
 %%
 void yyerror(char *s)
@@ -105,6 +109,7 @@ int estaEnLista(Lista *lista,char *a){
 int main(int argc,char **argv)
 {
 lista=inicializacion();
+inicializarArchivo(f);
 if (argc>3 || argc<1)
 {printf("Error, cantidad incorrecta de parametros");
 getch();
@@ -133,4 +138,23 @@ void yyerrors(int tipo,char *s){
 		case 1:
 		printf("Identificador %s repetido",s);break;
 	}
+}
+void inicializarArchivo(FILE *f){
+	f=fopen("mica.txt","w");
+	fprintf(f,"#include <stdio.h>\n");
+	fclose(f);
+	f=fopen("mica.txt","a+");
+	fprintf(f,"#include <stdlib.h>\n");
+	fprintf(f,"int main(){");
+	fclose(f);
+}
+void agregarIdentificadorArchivo(FILE *f,char *s,char *a){
+	f=fopen("mica.txt","a+");
+	fprintf(f,"int %s = %s;\n",s,a);
+	fclose(f);
+}
+void agregarLeerArchivo(FILE *f,char *a){
+	f=fopen("mica.txt","a+");
+	fprintf(f,"scanf(%%s,%s);\n",a);
+	fclose(f);
 }
