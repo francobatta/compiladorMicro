@@ -23,7 +23,6 @@ Lista *lista;
 %}
 %union {
   char * cadena;
-  int guiver;
 }
 %error-verbose
 %start Programa
