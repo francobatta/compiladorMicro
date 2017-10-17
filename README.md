@@ -1,4 +1,4 @@
-# Compilador de lenguaje Micro
+# Compilador de lenguaje Micro [Versión con semántico basado en listas]
 Compilador de lenguaje Micro para la clase de SSL 2017
 
 [Especificación de reglas de Micro](http://docdro.id/DMtvACu)
