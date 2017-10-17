@@ -22,7 +22,7 @@ escribir {return ESCRIBIR;}
 "," {return COMA;}
 ";" {return PUNTOCOMA;}
 {DIGITO}+ {return CONSTANTE;}
-{LETRA}{LETRA_DIGITO}{0,31} {return IDENTIFICADOR;}
+{LETRA}{LETRA_DIGITO}{0,31} {yylval.cadena= strdup(yytext);return IDENTIFICADOR;} 
 {OPERADOR_ADITIVO} {return OP_ADITIVO;}
 {ASIGNACION} {return ASIGNACION;}
 {SEPARADOR} {} /* Ignora */
