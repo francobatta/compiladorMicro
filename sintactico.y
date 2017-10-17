@@ -18,11 +18,13 @@ typedef struct Lista{
 Lista* inicializacion();
 Nodo* crearNodo(char *a);
 void insertarIdentificador(Lista *lista,char *a);
+void yyerrors(int tipo,char *s);
 int estaEnLista(Lista *lista,char *a);
 Lista *lista;
 %}
 %union {
   char * cadena;
+  int guiver;
 }
 %error-verbose
 %start Programa
@@ -39,19 +41,20 @@ Lista *lista;
 %token PD
 %token OP_ADITIVO
 %%
-Programa: INICIO ListaDeSentencias FIN {printf("Compilado Correctamente\n Presione una tecla para salir...");return 0;}
+Programa: INICIO ListaDeSentencias FIN {YYACCEPT;}
 ListaDeSentencias: Sentencia
 		|ListaDeSentencias Sentencia
-Sentencia: IDENTIFICADOR ASIGNACION Expresion PUNTOCOMA {if(estaEnLista(lista,$1)==0){printf("Identificador %s repetido",$1);return 1;}else{insertarIdentificador(lista,$1);}}
+Sentencia: IDENTIFICADOR ASIGNACION Expresion PUNTOCOMA {if(estaEnLista(lista,$1)==0){yyerrors(1,$1);YYABORT;}
+														else{insertarIdentificador(lista,$1);}}
 	|LEER PI ListaIdentificadores PD PUNTOCOMA 
 	|ESCRIBIR PI ListaExpresiones PD PUNTOCOMA
-ListaIdentificadores: IDENTIFICADOR {if(estaEnLista(lista,$1)==1){printf("Identificador %s no declarado ",$1);return 1;}}
-	| ListaIdentificadores COMA IDENTIFICADOR {if(estaEnLista(lista,$3)==1){printf("Identificador %s no declarado ",$3);return 1;}}
+ListaIdentificadores: IDENTIFICADOR {if(estaEnLista(lista,$1)==1){yyerrors(0,$1);YYABORT;}}
+	| ListaIdentificadores COMA IDENTIFICADOR {if(estaEnLista(lista,$3)==1){yyerrors(0,$3);YYABORT;}}
 ListaExpresiones: Expresion
 	|ListaExpresiones COMA Expresion
 Expresion: Primaria
 	|Expresion OP_ADITIVO Expresion
-Primaria: IDENTIFICADOR {if(estaEnLista(lista,$1)==1){printf("Identificador %s no declarado ",$1);return 1;}}
+Primaria: IDENTIFICADOR {if(estaEnLista(lista,$1)==1){yyerrors(0,$1);YYABORT;}}
 	| CONSTANTE
 	| PI Expresion PD
 
@@ -112,6 +115,22 @@ else if (argc==2)
 else
  {printf("Por favor ingrese programa a ser compilado\n");
  yyin=stdin;}
-yyparse(); getch();
+switch(yyparse()){
+case 0:
+ printf("Compilado Correctamente\n Presione una tecla para salir..."); break;
+case 1:
+ puts("\nCompilacion abortada"); break;
+case 2:
+ puts("Memoria insuficiente"); break;
 }
-
+getch();
+return 0;
+}
+void yyerrors(int tipo,char *s){
+	switch(tipo){
+		case 0:
+		printf("Identificador %s no declarado ",s);break;
+		case 1:
+		printf("Identificador %s repetido",s);break;
+	}
+}
