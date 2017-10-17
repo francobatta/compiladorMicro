@@ -2,6 +2,7 @@
 /* Analizador Sintactico */
 #include <stdio.h>
 #include <stdlib.h>
+#include <conio.h>
 extern int yylex(void);
 extern char *yytext;
 extern FILE *yyin;
@@ -22,7 +23,7 @@ void yyerror(char *s);
 %token PD
 %token OP_ADITIVO
 %%
-Programa: INICIO ListaDeSentencias FIN {printf("Compilado Correctamente\n");}
+Programa: INICIO ListaDeSentencias FIN {printf("Compilado Correctamente\n Presione una tecla para salir...");return 0;}
 ListaDeSentencias: Sentencia
 		|ListaDeSentencias Sentencia
 Sentencia: IDENTIFICADOR ASIGNACION Expresion PUNTOCOMA
@@ -47,7 +48,7 @@ int main(int argc,char **argv)
 {
 if (argc>3 || argc<1)
 {printf("Error, cantidad incorrecta de parametros");
-getchar();
+getch();
 return 1;}
 else if (argc==2)
  {yyin=fopen(argv[1],"rt");
@@ -55,7 +56,5 @@ else if (argc==2)
 else
  {printf("Por favor ingrese programa a ser compilado\n");
  yyin=stdin;}
-yyparse();
-getchar();
-return 0;
+yyparse(); getch();
 }
