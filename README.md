@@ -1,4 +1,38 @@
-# Compilador de lenguaje Micro [Versión con semántico basado en listas]
+# Compilador de lenguaje Micro 
+## Versión con semántico basado en listas
+```
+Lista* inicializacion(){
+	Lista *lista=(Lista *)malloc(sizeof(Lista));
+	lista->cabeza = NULL;
+	return lista;
+}
+Nodo* crearNodo(char *a){
+    Nodo* nodo = (Nodo *)malloc(sizeof(Nodo));
+    strncpy(nodo->cadena,a,sizeof(nodo->cadena));
+    nodo->siguiente=NULL;
+    return nodo;
+}
+void insertarIdentificador(Lista *lista,char *a){
+    Nodo* nodo=crearNodo(a);
+if(lista->cabeza== NULL){
+    lista->cabeza=nodo;
+}
+else{
+     Nodo* aux=lista->cabeza;
+     while(aux->siguiente){
+            aux = aux->siguiente;
+     }
+     aux->siguiente=nodo;
+}
+}
+void mostrarLista(Lista *lista){
+      Nodo *aux=lista->cabeza;
+while(aux!=NULL){
+    printf("%s",aux->cadena);
+    aux=aux->siguiente;
+}
+}
+```
 Compilador de lenguaje Micro para la clase de SSL 2017
 
 [Especificación de reglas de Micro](http://docdro.id/DMtvACu)
