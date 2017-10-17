@@ -17,14 +17,15 @@ inicio {return INICIO;}
 fin {return FIN;}
 leer {return LEER;}
 escribir {return ESCRIBIR;}
-"(" {return PI;}
-")" {return PD;}
+"(" {yylval.cadena= strdup(yytext);return PI;}
+")" {yylval.cadena= strdup(yytext);return PD;}
 "," {return COMA;}
 ";" {return PUNTOCOMA;}
-{DIGITO}+ {return CONSTANTE;}
+{DIGITO}+ {yylval.cadena= strdup(yytext);return CONSTANTE;}
 {LETRA}{LETRA_DIGITO}{0,31} {yylval.cadena= strdup(yytext);return IDENTIFICADOR;} 
-{OPERADOR_ADITIVO} {return OP_ADITIVO;}
+{OPERADOR_ADITIVO} {yylval.cadena= strdup(yytext);return OP_ADITIVO;}
 {ASIGNACION} {return ASIGNACION;}
 {SEPARADOR} {} /* Ignora */
-. {yyerror("Caracter Desconocido");}
+. {yyerror("Caracter Desconocido, ");}
 %%
+
