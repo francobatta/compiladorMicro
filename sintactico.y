@@ -9,16 +9,16 @@ extern char *yytext;
 extern FILE *yyin;
 void yyerror(char *s);
 typedef struct Nodo{
-    char cadena[32];
+    char cadena[33];
     struct Nodo* siguiente;
 } Nodo;
 typedef struct Lista{
     Nodo* cabeza;
 } Lista;
-void mostrarLista(Lista *lista);
 Lista* inicializacion();
 Nodo* crearNodo(char *a);
 void insertarIdentificador(Lista *lista,char *a);
+int estaEnLista(Lista *lista,char *a);
 Lista *lista;
 %}
 %union {
@@ -40,19 +40,19 @@ Lista *lista;
 %token PD
 %token OP_ADITIVO
 %%
-Programa: INICIO ListaDeSentencias FIN {printf("Compilado Correctamente\n Presione una tecla para salir...");mostrarLista(lista);return 0;}
+Programa: INICIO ListaDeSentencias FIN {printf("Compilado Correctamente\n Presione una tecla para salir...");return 0;}
 ListaDeSentencias: Sentencia
 		|ListaDeSentencias Sentencia
-Sentencia: IDENTIFICADOR ASIGNACION Expresion PUNTOCOMA {insertarIdentificador(lista,$1)}
+Sentencia: IDENTIFICADOR ASIGNACION Expresion PUNTOCOMA {if(estaEnLista(lista,$1)==0){printf("Identificador %s repetido",$1);return 1;}else{insertarIdentificador(lista,$1);}}
 	|LEER PI ListaIdentificadores PD PUNTOCOMA 
 	|ESCRIBIR PI ListaExpresiones PD PUNTOCOMA
-ListaIdentificadores: IDENTIFICADOR
-	| ListaIdentificadores COMA IDENTIFICADOR
+ListaIdentificadores: IDENTIFICADOR {if(estaEnLista(lista,$1)==1){printf("Identificador %s no declarado ",$1);return 1;}}
+	| ListaIdentificadores COMA IDENTIFICADOR {if(estaEnLista(lista,$3)==1){printf("Identificador %s no declarado ",$3);return 1;}}
 ListaExpresiones: Expresion
 	|ListaExpresiones COMA Expresion
 Expresion: Primaria
 	|Expresion OP_ADITIVO Expresion
-Primaria: IDENTIFICADOR
+Primaria: IDENTIFICADOR {if(estaEnLista(lista,$1)==1){printf("Identificador %s no declarado ",$1);return 1;}}
 	| CONSTANTE
 	| PI Expresion PD
 
@@ -85,17 +85,24 @@ else{
      aux->siguiente=nodo;
 }
 }
-void mostrarLista(Lista *lista){
-      Nodo *aux=lista->cabeza;
-while(aux!=NULL){
-    printf("%s",aux->cadena);
-    aux=aux->siguiente;
-}
+int estaEnLista(Lista *lista,char *a){
+	Nodo *aux=lista->cabeza;
+	if(aux==NULL){
+		return 1;
+	}
+	else{
+		while(aux!=NULL){
+			if(strcmp(aux->cadena,a)==0)
+			return 0;
+			else
+			aux=aux->siguiente;
+		}
+		return 1;
+	}
 }
 int main(int argc,char **argv)
 {
-lista=(Lista *)malloc(sizeof(Lista));
-lista->cabeza = NULL;
+lista=inicializacion();
 if (argc>3 || argc<1)
 {printf("Error, cantidad incorrecta de parametros");
 getch();
@@ -108,3 +115,4 @@ else
  yyin=stdin;}
 yyparse(); getch();
 }
+
