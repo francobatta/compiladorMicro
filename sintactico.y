@@ -111,6 +111,7 @@ int estaEnLista(Lista *lista,char *a){
 }
 int main(int argc,char **argv)
 {
+int ret;
 lista=inicializacion();
 inicializarArchivo(f);
 if (argc>3 || argc<1)
@@ -127,6 +128,7 @@ switch(yyparse()){
 case 0:
  printf("Compilado Correctamente\n Presione una tecla para salir...");finalizarArchivo(f); break;
 case 1:
+	ret = remove("ylaquinta.c");
  puts("\nCompilacion abortada"); break;
 case 2:
  puts("Memoria insuficiente"); break;
