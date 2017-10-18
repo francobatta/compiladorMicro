@@ -28,7 +28,6 @@ FILE *f;
 %}
 %union {
   char * cadena;
-  int guiver;
 }
 %error-verbose
 %start Programa
@@ -44,23 +43,25 @@ FILE *f;
 %token <cadena>PI
 %token <cadena>PD
 %token <cadena>OP_ADITIVO
+%type <cadena>Expresion
+%type <cadena>Primaria
 %%
 Programa: INICIO ListaDeSentencias FIN {YYACCEPT;}
 ListaDeSentencias: Sentencia
 		|ListaDeSentencias Sentencia
 Sentencia: IDENTIFICADOR ASIGNACION Expresion PUNTOCOMA {if(estaEnLista(lista,$1)==0){yyerrors(1,$1);YYABORT;}
-														else{insertarIdentificador(lista,$1);agregarIdentificadorArchivo(f,$1,$<cadena>3);}}
-	|LEER PI ListaIdentificadores PD PUNTOCOMA 
+														else{insertarIdentificador(lista,$1);agregarIdentificadorArchivo(f,$1,$3);}}
+	|LEER PI ListaIdentificadores PD PUNTOCOMA
 	|ESCRIBIR PI ListaExpresiones PD PUNTOCOMA
 ListaIdentificadores: IDENTIFICADOR {if(estaEnLista(lista,$1)==1){yyerrors(0,$1);YYABORT;}else{agregarLeerArchivo(f,$1);}}
 	| ListaIdentificadores COMA IDENTIFICADOR {if(estaEnLista(lista,$3)==1){yyerrors(0,$3);YYABORT;}else{agregarLeerArchivo(f,$3);}}
-ListaExpresiones: Expresion
-	|ListaExpresiones COMA Expresion
+ListaExpresiones: Expresion {}
+	|ListaExpresiones COMA Expresion {}
 Expresion: Primaria
-	|Expresion OP_ADITIVO Expresion 
+	|Expresion OP_ADITIVO Expresion {$$=strdup(strcat(strcat($1,$2),$3))}
 Primaria: IDENTIFICADOR {if(estaEnLista(lista,$1)==1){yyerrors(0,$1);YYABORT;}}
-	| CONSTANTE
-	| PI Expresion PD {strcat($<cadena>$,strcat(strcat($1,$<cadena>2),$3))}
+	| CONSTANTE 
+	| PI Expresion PD {$$=strdup(strcat(strcat($1,$2),$3))}
 
 %%
 void yyerror(char *s)
@@ -157,4 +158,8 @@ void agregarLeerArchivo(FILE *f,char *a){
 	f=fopen("mica.txt","a+");
 	fprintf(f,"scanf(%%s,%s);\n",a);
 	fclose(f);
+}
+void agregarEscrbirArchivo(FILE *f,char *a){
+	f=fopen("mica.txt","a+");
+	fprintf(f,"printf()
 }
