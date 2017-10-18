@@ -24,6 +24,7 @@ int estaEnLista(Lista *lista,char *a);
 void agregarIdentificadorArchivo(FILE *f,char *s,char *a);
 void agregarLeerArchivo(FILE *f,char *a);
 void agregarEscrbirArchivo(FILE *f,char *a);
+void nuevoAgregarIdentificadorArchivo(FILE *f,char *s);
 void finalizarArchivo(FILE *f);
 Lista *lista;
 FILE *f;
@@ -55,8 +56,10 @@ Sentencia: IDENTIFICADOR ASIGNACION Expresion PUNTOCOMA {if(estaEnLista(lista,$1
 														else{insertarIdentificador(lista,$1);agregarIdentificadorArchivo(f,$1,$3);}}
 	|LEER PI ListaIdentificadores PD PUNTOCOMA
 	|ESCRIBIR PI ListaExpresiones PD PUNTOCOMA
-ListaIdentificadores: IDENTIFICADOR {if(estaEnLista(lista,$1)==1){yyerrors(0,$1);YYABORT;}else{agregarLeerArchivo(f,$1);}}
-	| ListaIdentificadores COMA IDENTIFICADOR {if(estaEnLista(lista,$3)==1){yyerrors(0,$3);YYABORT;}else{agregarLeerArchivo(f,$3);}}
+ListaIdentificadores: IDENTIFICADOR {if(estaEnLista(lista,$1)==1){
+										insertarIdentificador(lista,$1);nuevoAgregarIdentificadorArchivo(f,$1);}
+									agregarLeerArchivo(f,$1);}
+	| ListaIdentificadores COMA IDENTIFICADOR {if(estaEnLista(lista,$3)==1){insertarIdentificador(lista,$3);nuevoAgregarIdentificadorArchivo(f,$3);}agregarLeerArchivo(f,$3);}
 ListaExpresiones: Expresion {agregarEscrbirArchivo(f,$1);}
 	|ListaExpresiones COMA Expresion {agregarEscrbirArchivo(f,$3);}
 Expresion: Primaria
@@ -156,6 +159,11 @@ void inicializarArchivo(FILE *f){
 void agregarIdentificadorArchivo(FILE *f,char *s,char *a){
 	f=fopen("ylaquinta.c","a+");
 	fprintf(f,"int %s = %s;\n",s,a);
+	fclose(f);
+}
+void nuevoAgregarIdentificadorArchivo(FILE *f,char *s){
+	f=fopen("ylaquinta.c","a+");
+	fprintf(f,"int %s;\n",s);
 	fclose(f);
 }
 void agregarLeerArchivo(FILE *f,char *a){
