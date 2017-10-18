@@ -56,10 +56,10 @@ Sentencia: IDENTIFICADOR ASIGNACION Expresion PUNTOCOMA {if(estaEnLista(lista,$1
 														else{insertarIdentificador(lista,$1);agregarIdentificadorArchivo(f,$1,$3);}}
 	|LEER PI ListaIdentificadores PD PUNTOCOMA
 	|ESCRIBIR PI ListaExpresiones PD PUNTOCOMA
-ListaIdentificadores: IDENTIFICADOR {if(estaEnLista(lista,$1)==1){
-										insertarIdentificador(lista,$1);nuevoAgregarIdentificadorArchivo(f,$1);}
+ListaIdentificadores: IDENTIFICADOR {if(estaEnLista(lista,$1)==1){insertarIdentificador(lista,$1);nuevoAgregarIdentificadorArchivo(f,$1);}
 									agregarLeerArchivo(f,$1);}
-	| ListaIdentificadores COMA IDENTIFICADOR {if(estaEnLista(lista,$3)==1){insertarIdentificador(lista,$3);nuevoAgregarIdentificadorArchivo(f,$3);}agregarLeerArchivo(f,$3);}
+	| ListaIdentificadores COMA IDENTIFICADOR {if(estaEnLista(lista,$3)==1){insertarIdentificador(lista,$3);nuevoAgregarIdentificadorArchivo(f,$3);}
+												agregarLeerArchivo(f,$3);}
 ListaExpresiones: Expresion {agregarEscrbirArchivo(f,$1);}
 	|ListaExpresiones COMA Expresion {agregarEscrbirArchivo(f,$3);}
 Expresion: Primaria
@@ -131,7 +131,7 @@ switch(yyparse()){
 case 0:
  printf("Compilado Correctamente\n Presione una tecla para salir...");finalizarArchivo(f); break;
 case 1:
-	ret = remove("ylaquinta.c");
+	ret = remove("salidaEnC.c");
  puts("\nCompilacion abortada"); break;
 case 2:
  puts("Memoria insuficiente"); break;
@@ -148,36 +148,36 @@ void yyerrors(int tipo,char *s){
 	}
 }
 void inicializarArchivo(FILE *f){
-	f=fopen("ylaquinta.c","w");
+	f=fopen("salidaEnC.c","w");
 	fprintf(f,"#include <stdio.h>\n");
 	fclose(f);
-	f=fopen("ylaquinta.c","a+");
+	f=fopen("salidaEnC.c","a+");
 	fprintf(f,"#include <stdlib.h>\n");
 	fprintf(f,"int main(){\n");
 	fclose(f);
 }
 void agregarIdentificadorArchivo(FILE *f,char *s,char *a){
-	f=fopen("ylaquinta.c","a+");
+	f=fopen("salidaEnC.c","a+");
 	fprintf(f,"int %s = %s;\n",s,a);
 	fclose(f);
 }
 void nuevoAgregarIdentificadorArchivo(FILE *f,char *s){
-	f=fopen("ylaquinta.c","a+");
+	f=fopen("salidaEnC.c","a+");
 	fprintf(f,"int %s;\n",s);
 	fclose(f);
 }
 void agregarLeerArchivo(FILE *f,char *a){
-	f=fopen("ylaquinta.c","a+");
+	f=fopen("salidaEnC.c","a+");
 	fprintf(f,"scanf(\"%%d\",&%s);\n",a);
 	fclose(f);
 }
 void agregarEscrbirArchivo(FILE *f,char *a){
-	f=fopen("ylaquinta.c","a+");
+	f=fopen("salidaEnC.c","a+");
 	fprintf(f,"printf(\"%%d\\n\",%s);\n",a);
 	fclose(f);
 }
 void finalizarArchivo(FILE *f){
-	f=fopen("ylaquinta.c","a+");
+	f=fopen("salidaEnC.c","a+");
 	fprintf(f,"\nreturn 0;\n}");
 	fclose(f);
 }
