@@ -1,4 +1,5 @@
-%option noyywrap /* Avisa que solo leera un archivo */
+/*El Option noyywrap Avisa que solo leera un archivo */
+%option noyywrap
 %{
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,7 +11,8 @@ DIGITO [0-9]
 OPERADOR_ADITIVO [+|-]
 ASIGNACION :=
 LETRA_DIGITO ({LETRA}|{DIGITO})
-SEPARADOR ([ \t\n])+ /* Para ignorar espacios en blanco*/
+/*SEPARADOR sirve para ignorar espacios en blanco*/
+SEPARADOR ([ \t\n])+
 void yyerror(char *);
 %% /* Finaliza declaracion de tokens*/
 inicio {return INICIO;}
