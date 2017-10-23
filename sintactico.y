@@ -28,10 +28,10 @@ void nuevoAgregarIdentificadorArchivo(FILE *f,char *s);
 void finalizarArchivo(FILE *f);
 Lista *lista;
 FILE *f;
-%}
+%} // Fin prototipo funciones
 %union {
   char * cadena;
-}
+} // Declara tipo de dato char como <cadena>
 %error-verbose
 %start Programa
 %token INICIO
@@ -48,31 +48,34 @@ FILE *f;
 %token <cadena>OP_ADITIVO
 %type <cadena>Expresion
 %type <cadena>Primaria
-%%
+%% // Fin declaracion tokens
 Programa: INICIO ListaDeSentencias FIN {YYACCEPT;}
 ListaDeSentencias: Sentencia
 		|ListaDeSentencias Sentencia
 Sentencia: IDENTIFICADOR ASIGNACION Expresion PUNTOCOMA {if(estaEnLista(lista,$1)==0){yyerrors(1,$1);YYABORT;}
 														else{insertarIdentificador(lista,$1);agregarIdentificadorArchivo(f,$1,$3);}}
+                            // Rutina de asignacion
 	|LEER PI ListaIdentificadores PD PUNTOCOMA
 	|ESCRIBIR PI ListaExpresiones PD PUNTOCOMA
 ListaIdentificadores: IDENTIFICADOR {if(estaEnLista(lista,$1)==1){insertarIdentificador(lista,$1);nuevoAgregarIdentificadorArchivo(f,$1);}
 									agregarLeerArchivo(f,$1);}
+                            // Rutina de lectura
 	| ListaIdentificadores COMA IDENTIFICADOR {if(estaEnLista(lista,$3)==1){insertarIdentificador(lista,$3);nuevoAgregarIdentificadorArchivo(f,$3);}
 												agregarLeerArchivo(f,$3);}
 ListaExpresiones: Expresion {agregarEscrbirArchivo(f,$1);}
 	|ListaExpresiones COMA Expresion {agregarEscrbirArchivo(f,$3);}
+                            // Rutina de escritura
 Expresion: Primaria
 	|Expresion OP_ADITIVO Expresion {$$=strdup(strcat(strcat($1,$2),$3))}
 Primaria: IDENTIFICADOR {if(estaEnLista(lista,$1)==1){yyerrors(0,$1);YYABORT;}}
-	| CONSTANTE 
+	| CONSTANTE
 	| PI Expresion PD {$$=strdup(strcat(strcat($1,$2),$3))}
-
 %%
 void yyerror(char *s)
 {
 printf("Error %s",s);
 }
+// Inicio funciones lista
 Lista* inicializacion(){
 	Lista *lista=(Lista *)malloc(sizeof(Lista));
 	lista->cabeza = NULL;
@@ -84,6 +87,8 @@ Nodo* crearNodo(char *a){
     nodo->siguiente=NULL;
     return nodo;
 }
+// Fin funciones lista
+// Inicio funciones semanticas
 void insertarIdentificador(Lista *lista,char *a){
     Nodo* nodo=crearNodo(a);
 if(lista->cabeza== NULL){
@@ -112,6 +117,7 @@ int estaEnLista(Lista *lista,char *a){
 		return 1;
 	}
 }
+// Fin funciones semanticas
 int main(int argc,char **argv)
 {
 int ret;
@@ -130,8 +136,9 @@ else
 switch(yyparse()){
 case 0:
  printf("Compilado Correctamente\n Presione una tecla para salir...");finalizarArchivo(f); break;
+              // Rutina Fin
 case 1:
-	ret = remove("salidaEnC.c");
+	ret = remove("salidaEnC.c"); // Borrar archivo salida ante error
  puts("\nCompilacion abortada"); break;
 case 2:
  puts("Memoria insuficiente"); break;
@@ -147,6 +154,7 @@ void yyerrors(int tipo,char *s){
 		printf("Identificador %s repetido",s);break;
 	}
 }
+// Inicio funciones de sintesis
 void inicializarArchivo(FILE *f){
 	f=fopen("salidaEnC.c","w");
 	fprintf(f,"#include <stdio.h>\n");
@@ -181,3 +189,4 @@ void finalizarArchivo(FILE *f){
 	fprintf(f,"\nreturn 0;\n}");
 	fclose(f);
 }
+// Fin funciones de sintesis
