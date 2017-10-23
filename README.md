@@ -1,13 +1,5 @@
 # Compilador de lenguaje Micro con Síntesis
-## Versión con semántico basado en listas
-```
-Lista* inicializacion(){
-	Lista *lista=(Lista *)malloc(sizeof(Lista));
-	lista->cabeza = NULL;
-	return lista;
-}...
-```
-Compilador de lenguaje Micro para la clase de SSL 2017
+### Compilador de lenguaje Micro para la clase de SSL 2017
 
 [Especificación de reglas de Micro](http://docdro.id/DMtvACu)
 
@@ -16,7 +8,3 @@ Usar [Bison](http://gnuwin32.sourceforge.net/packages/bison.htm) y [Flex](http:/
 1. `bison -d sintactico.y`
 1. `flex lexico.l`
 1. `gcc lex.yy.c sintactico.tab.c -o compilador.exe`
-## Si se encuentra un error:
-* Abrir un issue
-* Si sigue andando el ejecutable una vez cambiados los archivos, committear cambios 
-* Hacer un *Release* si los cambios son significativos (o sea, subir el .exe)
