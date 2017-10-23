@@ -18,13 +18,13 @@ typedef struct Lista{
 Lista* inicializacion();
 Nodo* crearNodo(char *a);
 void insertarIdentificador(Lista *lista,char *a);
-void yyerrors(int tipo,char *s);
+void yyerrors(char *s);
 void inicializarArchivo(FILE *f);
 int estaEnLista(Lista *lista,char *a);
-void agregarIdentificadorArchivo(FILE *f,char *s,char *a);
+void agregarIdentificadorArchivo(FILE *f,char *s);
+void asignarValorIdentiAarchivo(FILE *f,char *s,char *a);
 void agregarLeerArchivo(FILE *f,char *a);
 void agregarEscrbirArchivo(FILE *f,char *a);
-void nuevoAgregarIdentificadorArchivo(FILE *f,char *s);
 void finalizarArchivo(FILE *f);
 Lista *lista;
 FILE *f;
@@ -52,22 +52,23 @@ FILE *f;
 Programa: INICIO ListaDeSentencias FIN {YYACCEPT;}
 ListaDeSentencias: Sentencia
 		|ListaDeSentencias Sentencia
-Sentencia: IDENTIFICADOR ASIGNACION Expresion PUNTOCOMA {if(estaEnLista(lista,$1)==0){yyerrors(1,$1);YYABORT;}
-														else{insertarIdentificador(lista,$1);agregarIdentificadorArchivo(f,$1,$3);}}
+Sentencia: IDENTIFICADOR ASIGNACION Expresion PUNTOCOMA {if(estaEnLista(lista,$1)){asignarValorIdentiAarchivo(f,$1,$3);}
+														else{insertarIdentificador(lista,$1);agregarIdentificadorArchivo(f,$1);
+															asignarValorIdentiAarchivo(f,$1,$3);}}
                             // Rutina de asignacion
 	|LEER PI ListaIdentificadores PD PUNTOCOMA
 	|ESCRIBIR PI ListaExpresiones PD PUNTOCOMA
-ListaIdentificadores: IDENTIFICADOR {if(estaEnLista(lista,$1)==1){insertarIdentificador(lista,$1);nuevoAgregarIdentificadorArchivo(f,$1);}
+ListaIdentificadores: IDENTIFICADOR {if(!estaEnLista(lista,$1)){insertarIdentificador(lista,$1);agregarIdentificadorArchivo(f,$1);}
 									agregarLeerArchivo(f,$1);}
                             // Rutina de lectura
-	| ListaIdentificadores COMA IDENTIFICADOR {if(estaEnLista(lista,$3)==1){insertarIdentificador(lista,$3);nuevoAgregarIdentificadorArchivo(f,$3);}
+	| ListaIdentificadores COMA IDENTIFICADOR {if(!estaEnLista(lista,$3)){insertarIdentificador(lista,$3);agregarIdentificadorArchivo(f,$3);}
 												agregarLeerArchivo(f,$3);}
 ListaExpresiones: Expresion {agregarEscrbirArchivo(f,$1);}
 	|ListaExpresiones COMA Expresion {agregarEscrbirArchivo(f,$3);}
                             // Rutina de escritura
 Expresion: Primaria
 	|Expresion OP_ADITIVO Expresion {$$=strdup(strcat(strcat($1,$2),$3))}
-Primaria: IDENTIFICADOR {if(estaEnLista(lista,$1)==1){yyerrors(0,$1);YYABORT;}}
+Primaria: IDENTIFICADOR {if(!estaEnLista(lista,$1)){yyerrors($1);YYABORT;}}
 	| CONSTANTE
 	| PI Expresion PD {$$=strdup(strcat(strcat($1,$2),$3))}
 %%
@@ -105,17 +106,20 @@ else{
 int estaEnLista(Lista *lista,char *a){
 	Nodo *aux=lista->cabeza;
 	if(aux==NULL){
-		return 1;
+		return 0;
 	}
 	else{
 		while(aux!=NULL){
 			if(strcmp(aux->cadena,a)==0)
-			return 0;
+			return 1;
 			else
 			aux=aux->siguiente;
 		}
-		return 1;
+		return 0;
 	}
+}
+void yyerrors(char *s){
+		printf("Identificador %s no declarado ",s);
 }
 // Fin funciones semanticas
 int main(int argc,char **argv)
@@ -146,32 +150,23 @@ case 2:
 getch();
 return 0;
 }
-void yyerrors(int tipo,char *s){
-	switch(tipo){
-		case 0:
-		printf("Identificador %s no declarado ",s);break;
-		case 1:
-		printf("Identificador %s repetido",s);break;
-	}
-}
 // Inicio funciones de sintesis
 void inicializarArchivo(FILE *f){
 	f=fopen("salidaEnC.c","w");
+	fprintf(f,"/*Sintesis del programa en micro en C*/\n");
 	fprintf(f,"#include <stdio.h>\n");
-	fclose(f);
-	f=fopen("salidaEnC.c","a+");
 	fprintf(f,"#include <stdlib.h>\n");
 	fprintf(f,"int main(){\n");
 	fclose(f);
 }
-void agregarIdentificadorArchivo(FILE *f,char *s,char *a){
-	f=fopen("salidaEnC.c","a+");
-	fprintf(f,"int %s = %s;\n",s,a);
-	fclose(f);
-}
-void nuevoAgregarIdentificadorArchivo(FILE *f,char *s){
+void agregarIdentificadorArchivo(FILE *f,char *s){
 	f=fopen("salidaEnC.c","a+");
 	fprintf(f,"int %s;\n",s);
+	fclose(f);
+}
+void asignarValorIdentiAarchivo(FILE *f,char *s,char *a){
+	f=fopen("salidaEnC.c","a+");
+	fprintf(f,"%s = %s;\n",s,a);
 	fclose(f);
 }
 void agregarLeerArchivo(FILE *f,char *a){
